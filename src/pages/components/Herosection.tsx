@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FloatingCard } from "../FloatingCard";
 import { LandingContent } from "../types/content";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -23,35 +19,46 @@ export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) 
   }, []);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".hero-animate", {
-        opacity: 0,
-        y: 20,
-        duration: 1,
-        stagger: 0.1,
-        ease: "power3.out",
-      });
+    // Import GSAP and ScrollTrigger inside useEffect
+    let gsap: any;
+    let ScrollTrigger: any;
+    (async () => {
+      const gsapModule = await import("gsap");
+      gsap = gsapModule.gsap;
+      const stModule = await import("gsap/ScrollTrigger");
+      ScrollTrigger = stModule.ScrollTrigger;
+      gsap.registerPlugin(ScrollTrigger);
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-          end: "top 20%",
-          toggleActions: "play none none reverse",
-        },
-      });
+      const ctx = gsap.context(() => {
+        gsap.from(".hero-animate", {
+          opacity: 0,
+          y: 20,
+          duration: 1,
+          stagger: 0.1,
+          ease: "power3.out",
+        });
 
-      if (phoneRef.current) tl.from(phoneRef.current, { y: 50, opacity: 0, duration: 1 });
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 75%",
+            end: "top 20%",
+            toggleActions: "play none none reverse",
+          },
+        });
 
-      if (!isMobile) {
-        if (leftCardRef.current)
-          tl.from(leftCardRef.current, { x: -50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
-        if (rightCardRef.current)
-          tl.from(rightCardRef.current, { x: 50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
-      }
-    }, sectionRef);
+        if (phoneRef.current) tl.from(phoneRef.current, { y: 50, opacity: 0, duration: 1 });
 
-    return () => ctx.revert();
+        if (!isMobile) {
+          if (leftCardRef.current)
+            tl.from(leftCardRef.current, { x: -50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
+          if (rightCardRef.current)
+            tl.from(rightCardRef.current, { x: 50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
+        }
+      }, sectionRef);
+
+      return () => ctx.revert();
+    })();
   }, [isMobile]);
 
   return (
@@ -60,11 +67,7 @@ export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) 
       className={`min-h-screen flex flex-col items-center overflow-hidden font-inter
         ${isMobile ? "px-4 pt-16 pb-24 bg-gradient-to-b from-white to-blue-50" : "px-8 sm:px-10 lg:px-20 pt-24 pb-40 bg-gradient-to-b from-white to-blue-50"}`}
     >
-     
       <div ref={phoneRef} className="relative flex flex-col items-center w-full max-w-xs mb-40 sm:mb-52">
-        {/* <img src={hero.imageUrl} alt="Phone" className="w-full" /> */}
-
-       
         {!isMobile && (
           <>
             <div ref={leftCardRef} className="absolute -left-36 top-10">
@@ -75,8 +78,6 @@ export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) 
             </div>
           </>
         )}
-
-       
         {isMobile && (
           <div className="flex flex-col gap-4 mt-8 w-full items-center">
             <FloatingCard title="Day Off" value="20 OUT OF 40" type="chart" className="relative" />
@@ -85,7 +86,6 @@ export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) 
         )}
       </div>
 
-    
       <div className="text-center max-w-xl mx-auto px-2 sm:px-0">
         <h1 className="hero-animate font-extrabold text-gray-900 leading-tight mb-5 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
           {hero.title}
