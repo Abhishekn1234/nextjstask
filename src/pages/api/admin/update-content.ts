@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/mongodb";
-import Content from "@/pages/models/Content";
+import Content from "@/models/Content";
 import formidable, { File } from "formidable";
 import path from "path";
 import fs from "fs";

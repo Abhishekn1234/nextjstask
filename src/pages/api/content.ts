@@ -1,6 +1,7 @@
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/mongodb";
-import Content from "../models/Content";
+import Content from "@/models/Content"; 
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,12 +12,12 @@ export default async function handler(
 
     const content = await Content.findOne();
 
-    
     if (!content) {
       return res.status(200).json({
-        hero: { title: "", subtitle: "" },
+        hero: { title: "", subtitle: "", imageUrl: "" },
         about: { heading: "", paragraph: "" },
         testimonials: [],
+        faq: [],
       });
     }
 
@@ -26,5 +27,3 @@ export default async function handler(
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
-
-

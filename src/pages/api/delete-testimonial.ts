@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
-import Content from "../models/Content";
+import Content from "../../models/Content";
 
 export async function POST(req: NextRequest) {
   await connectToDatabase();
