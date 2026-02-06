@@ -2,33 +2,44 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ToastClassName,toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const login = async () => {
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem("admin_token", data.token);
-      localStorage.setItem("admin",JSON.stringify(data.admin))
-      router.push("/admin");
-      toast.success("Admin Login successfully");
-    } else {
-      alert(data.message);
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      console.log(res);
+      const data = await res.json();
+    console.log(data);
+      if (res.ok) {
+        localStorage.setItem("admin_token", data.token);
+        localStorage.setItem("admin", JSON.stringify(data.admin));
+        toast.success("Admin login successful ✅");
+        router.push("/admin");
+      } else if (res.status === 401) {
+        toast.error("Unauthorized! Check your credentials ❌");
+      } else {
+        toast.error(data.message || "Login failed ❌");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error ❌");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-100 to-white px-4">
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
         <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
           Admin Login

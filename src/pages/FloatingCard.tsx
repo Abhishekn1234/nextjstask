@@ -9,7 +9,7 @@ interface FloatingCardProps {
   className?: string; 
 }
 
-export  default function FloatingCard({ title, value, type, className }: FloatingCardProps) {
+export function FloatingCard({ title, value, type, className }: FloatingCardProps) {
   return (
     <div
       className={`

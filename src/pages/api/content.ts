@@ -1,7 +1,7 @@
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/mongodb";
-import Content from "@/models/Content"; 
+import Content from "@/pages/models/Content"; 
 
 export default async function handler(
   req: NextApiRequest,

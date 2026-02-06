@@ -65,33 +65,57 @@ export default function AdminDashboard() {
   }, [heroPreview]);
 
 
-  const saveContent = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("heroTitle", content.hero.title);
-      formData.append("heroSubtitle", content.hero.subtitle);
-      if (heroFile) formData.append("heroImage", heroFile);
-      formData.append("aboutHeading", content.about.heading);
-      formData.append("aboutParagraph", content.about.paragraph);
-      formData.append("testimonials", JSON.stringify(content.testimonials));
-      formData.append("faq", JSON.stringify(content.faq));
+const saveContent = async () => {
+  try {
+   
+    const formData = new FormData();
 
-      const res = await fetch("/api/admin/update-content", {
-        method: "POST",
-        body: formData,
-      });
 
-      if (res.ok) {
-        toast.success("Content saved successfully ✅");
-        const updated = await res.json();
-        setContent(updated);
-        setHeroFile(null);
-        setHeroPreview("");
-      } else toast.error("Failed to save content ❌");
-    } catch {
-      toast.error("Error saving content ❌");
+    formData.append("heroTitle", content.hero.title);
+    formData.append("heroSubtitle", content.hero.subtitle);
+    if (heroFile) formData.append("heroImage", heroFile);
+
+
+    formData.append("aboutHeading", content.about.heading);
+    formData.append("aboutParagraph", content.about.paragraph);
+
+   
+    formData.append("testimonials", JSON.stringify(content.testimonials));
+    formData.append("faq", JSON.stringify(content.faq));
+
+ 
+    const token = localStorage.getItem("admin_token");
+
+    const res = await fetch("/api/admin/update-content", {
+      method: "POST",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      toast.success("✅ Content saved successfully!");
+      
+     
+      setContent(data);
+      setHeroFile(null);
+      setHeroPreview("");
+    } else if (res.status === 401) {
+      toast.error("Unauthorized! Please login again.");
+      localStorage.removeItem("admin_token");
+      window.location.href = "/admin/login";
+    } else {
+      toast.error(data.message || "Failed to save content ❌");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Network error while saving content ❌");
+  }
+};
+
 
 
   const addTestimonial = () =>
