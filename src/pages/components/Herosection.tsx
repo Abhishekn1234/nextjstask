@@ -18,48 +18,50 @@ export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) 
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  useEffect(() => {
-    // Import GSAP and ScrollTrigger inside useEffect
-    let gsap: any;
-    let ScrollTrigger: any;
-    (async () => {
-      const gsapModule = await import("gsap");
-      gsap = gsapModule.gsap;
-      const stModule = await import("gsap/ScrollTrigger");
-      ScrollTrigger = stModule.ScrollTrigger;
-      gsap.registerPlugin(ScrollTrigger);
+useEffect(() => {
+  let ctxCleanup: (() => void) | undefined;
 
-      const ctx = gsap.context(() => {
-        gsap.from(".hero-animate", {
-          opacity: 0,
-          y: 20,
-          duration: 1,
-          stagger: 0.1,
-          ease: "power3.out",
-        });
+  (async () => {
+    const { gsap } = await import("gsap");
+    const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+    gsap.registerPlugin(ScrollTrigger);
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 75%",
-            end: "top 20%",
-            toggleActions: "play none none reverse",
-          },
-        });
+    const ctx = gsap.context(() => {
+      gsap.from(".hero-animate", {
+        opacity: 0,
+        y: 20,
+        duration: 1,
+        stagger: 0.1,
+        ease: "power3.out",
+      });
 
-        if (phoneRef.current) tl.from(phoneRef.current, { y: 50, opacity: 0, duration: 1 });
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 75%",
+          end: "top 20%",
+          toggleActions: "play none none reverse",
+        },
+      });
 
-        if (!isMobile) {
-          if (leftCardRef.current)
-            tl.from(leftCardRef.current, { x: -50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
-          if (rightCardRef.current)
-            tl.from(rightCardRef.current, { x: 50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
-        }
-      }, sectionRef);
+      if (phoneRef.current) tl.from(phoneRef.current, { y: 50, opacity: 0, duration: 1 });
 
-      return () => ctx.revert();
-    })();
-  }, [isMobile]);
+      if (!isMobile) {
+        if (leftCardRef.current)
+          tl.from(leftCardRef.current, { x: -50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
+        if (rightCardRef.current)
+          tl.from(rightCardRef.current, { x: 50, opacity: 0, duration: 0.8, ease: "back.out(1.2)" }, "-=0.6");
+      }
+    }, sectionRef);
+
+    ctxCleanup = ctx.revert; // save cleanup function
+  })();
+
+  return () => {
+    ctxCleanup?.(); // React will call this when component unmounts or dependency changes
+  };
+}, [isMobile]);
+
 
   return (
     <section
