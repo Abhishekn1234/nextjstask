@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FloatingCard } from "../FloatingCard";
+import  FloatingCard  from "../FloatingCard";
 import { LandingContent } from "../types/content";
 
 export default function HeroSection({ hero }: { hero: LandingContent["hero"] }) {
